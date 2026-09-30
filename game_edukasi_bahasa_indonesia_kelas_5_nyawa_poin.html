@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Edukasi Bahasa Indonesia Kelas 5 SD & Real-Time Teacher Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%);
+        }
+        .animate-bounce-short {
+            animation: bounce 1.5s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(-5%); animation-timing-function: cubic-bezier(0.8, 0, 1, 1); }
+            50% { transform: translateY(0); animation-timing-function: cubic-bezier(0, 0, 0.2, 1); }
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col justify-between">
+
+    <header class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50 px-4 py-3">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <span class="text-2xl">📚</span>
+                <span class="font-extrabold text-lg text-emerald-600">EduGame <span class="text-blue-600">Kelas 5 SD</span></span>
+            </div>
+            <div class="flex items-center space-x-3">
+                <div id="user-badge" class="hidden text-sm bg-emerald-100 text-emerald-800 font-semibold px-3 py-1 rounded-full">
+                    👤 <span id="display-username"></span>
+                </div>
+                <!-- Tombol Mode Guru -->
+                <button onclick="openTeacherLoginModal()" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 text-xs sm:text-sm font-bold px-3 py-2 rounded-xl transition flex items-center space-x-1">
+                    <span>👩‍🏫</span> <span class="hidden sm:inline">Mode Guru</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl w-full mx-auto p-4 sm:p-6 my-auto flex-grow flex flex-col justify-center">
+
+        <!-- 1. HALAMAN LOGIN / INPUT NAMA SISWA -->
+        <section id="screen-login" class="bg-white rounded-3xl shadow-xl p-6 sm:p-10 text-center border border-emerald-100">
+            <div class="inline-block bg-emerald-100 text-emerald-700 p-4 rounded-full text-4xl mb-4 animate-bounce-short">
+                🌟
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-800 mb-2">Belajar Tidak Harus Membosankan!</h1>
+            <p class="text-blue-600 font-semibold mb-6">Ubah Soal Menjadi Game - Mata Pelajaran Bahasa Indonesia Kelas 5 SD</p>
+            
+            <div class="max-w-md mx-auto bg-slate-50 p-6 rounded-2xl border border-slate-200 mb-6 text-left">
+                <label for="username-input" class="block text-sm font-bold text-slate-700 mb-2">Masukkan Nama Lengkap Kamu:</label>
+                <input type="text" id="username-input" placeholder="Contoh: Budi Santoso" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium">
+            </div>
+
+            <button onclick="handleLogin()" class="w-full max-w-md bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-emerald-200 transition transform hover:-translate-y-0.5">
+                🚀 Mulai Petualangan Belajar
+            </button>
+        </section>
+
+        <!-- 2. MENU UTAMA SISWA -->
+        <section id="screen-menu" class="hidden bg-white rounded-3xl shadow-xl p-6 sm:p-10 text-center border border-emerald-100">
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800 mb-2">Halo, <span id="welcome-name" class="text-emerald-600"></span>! 👋</h2>
+            <p class="text-slate-500 mb-8">Pilih menu di bawah ini untuk memulai kegiatan belajarmu.</p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto">
+                <button onclick="showMaterial()" class="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white font-bold p-6 rounded-2xl shadow-md transition transform hover:-translate-y-1 flex flex-col items-center justify-center space-y-2">
+                    <span class="text-4xl">📖</span>
+                    <span class="text-lg">Ringkasan Materi</span>
+                    <span class="text-xs font-normal opacity-95">Bab 1, 2, & 3 Bahasa Indonesia</span>
+                </button>
+                <button onclick="startQuiz()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold p-6 rounded-2xl shadow-md transition transform hover:-translate-y-1 flex flex-col items-center justify-center space-y-2">
+                    <span class="text-4xl">🎮</span>
+                    <span class="text-lg">Mulai Game Kuis</span>
+                    <span class="text-xs font-normal opacity-95">50 Soal Acak & Pembahasan Audio</span>
+                </button>
+            </div>
+            <div class="mt-6">
+                <button onclick="logoutToLogin()" class="text-slate-400 hover:text-slate-600 text-sm font-semibold underline">
+                    Ganti Nama / Keluar 🔄
+                </button>
+            </div>
+        </section>
+
+        <!-- 3. HALAMAN RINGKASAN MATERI -->
+        <section id="screen-material" class="hidden bg-white rounded-3xl shadow-xl p-6 sm:p-8 border border-emerald-100">
+            <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
+                <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 flex items-center">
+                    <span class="mr-2">📖</span> Ringkasan Materi Bahasa Indonesia Kelas 5
+                </h2>
+                <button onclick="showMenu()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-4 py-2 rounded-xl text-sm transition">
+                    ⬅️ Kembali ke Menu
+                </button>
+            </div>
+
+            <div class="space-y-6 max-h-[60vh] overflow-y-auto pr-2 text-slate-700 text-sm sm:text-base">
+                <div class="bg-emerald-50 p-5 rounded-2xl border border-emerald-100">
+                    <h3 class="font-bold text-emerald-800 text-lg mb-2">🌿 Bab 1: Aku yang Unik</h3>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li><strong>Teks Deskripsi:</strong> Teks yang melukiskan atau menggambarkan suatu objek, tempat, atau suasana tertentu dengan menggunakan pancaindra agar pembaca seolah-olah melihat, mendengar, atau merasakannya sendiri.</li>
+                        <li><strong>Kosakata & Ekspresi Bahasa:</strong> Penggunaan kata sifat, sinonim, antonim, dan ungkapan untuk mendeskripsikan ciri fisik maupun sifat seseorang secara unik.</li>
+                        <li><strong>Teks Narasi:</strong> Cerita rekaan atau nyata yang disusun berdasarkan urutan waktu (kronologis) menceritakan peristiwa atau pengalaman diri sendiri.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-blue-50 p-5 rounded-2xl border border-blue-100">
+                    <h3 class="font-bold text-blue-800 text-lg mb-2">🌍 Bab 2: Buku Jendela Dunia</h3>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li><strong>Buku Fiksi & Nonfiksi:</strong> Fiksi adalah karya sastra berdasarkan imajinasi (cerpen, dongeng), sedangkan nonfiksi berdasarkan fakta dan kenyataan (buku pelajaran, ensiklopedia, biografi).</li>
+                        <li><strong>Unsur Intrinsik Cerita:</strong> Terdiri dari tema, alur (plot), latar (tempat, waktu, suasana), tokoh dan penokohan, sudut pandang, serta amanat (pesan moral).</li>
+                        <li><strong>Kalimat Langsung & Tidak Langsung:</strong> Kalimat langsung mengutip ucapan seseorang apa adanya (ditandai tanda petik ganda "..."), sedangkan kalimat tidak langsung menceritakan kembali isi ucapan orang lain dengan bahasa sendiri tanpa tanda petik.</li>
+                        <li><strong>Kalimat Bermajas:</strong> Majas perbandingan seperti Metafora (kiasan langsung, contoh: <em>buku adalah jendela dunia</em>), Personifikasi (benda mati disifatkan seperti manusia, contoh: <em>daun kelapa melambai-lambai</em>), dan Hiperbola (pernyataan melebih-lebihkan, contoh: <em>suaranya menggelegar membelah angkasa</em>).</li>
+                    </ul>
+                </div>
+
+                <div class="bg-amber-50 p-5 rounded-2xl border border-amber-100">
+                    <h3 class="font-bold text-amber-800 text-lg mb-2">🎨 Bab 3: Ekspresi Diri Melalui Hobi</h3>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li><strong>Mengenal Hobi Lewat Teks:</strong> Memahami berbagai jenis kegemaran atau hobi melalui teks narasi, deskripsi, atau informasi inspiratif.</li>
+                        <li><strong>Bahasa & Kosakata Hobi:</strong> Penggunaan istilah-istilah khusus yang berkaitan dengan bidang hobi tertentu (misal: melukis, bersepeda, merakit robot, menari, menulis).</li>
+                        <li><strong>Mengekspresikan Hobi:</strong> Menuangkan kegemaran ke dalam bentuk tulisan (karangan/esai pendek) maupun lisan (presentasi atau bercerita di depan kelas) secara percaya diri.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. HALAMAN KUIS / GAME -->
+        <section id="screen-quiz" class="hidden bg-white rounded-3xl shadow-xl p-6 sm:p-8 border border-emerald-100">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span id="quiz-progress" class="bg-emerald-100 text-emerald-800 text-xs sm:text-sm font-extrabold px-3 py-1 rounded-full">Soal 1 dari 50</span>
+                    <span id="quiz-score-live" class="bg-blue-100 text-blue-800 text-xs sm:text-sm font-extrabold px-3 py-1 rounded-full">Poin: 0</span>
+                    <span id="quiz-lives" class="bg-rose-100 text-rose-800 text-xs sm:text-sm font-extrabold px-3 py-1 rounded-full">❤️❤️❤️ Nyawa: 3</span>
+                </div>
+                <button onclick="showMenu()" class="text-slate-400 hover:text-slate-700 text-sm font-semibold">Keluar ❌</button>
+            </div>
+
+            <!-- Keterangan Bobot Poin Nomor Soal -->
+            <div class="mb-3 flex justify-between items-center text-xs font-bold text-amber-800 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200">
+                <span id="question-points-badge">⭐ Bobot Soal Ini: 2 Poin</span>
+                <span class="text-slate-500 font-normal">Jawab benar tambah poin, salah kurangi nyawa!</span>
+            </div>
+
+            <!-- Pertanyaan & Tombol Audio -->
+            <div class="mb-6">
+                <div class="flex justify-between items-start gap-4 mb-3">
+                    <h3 id="question-text" class="text-base sm:text-lg font-bold text-slate-800 leading-relaxed"></h3>
+                    <button onclick="readQuestion()" class="bg-amber-100 hover:bg-amber-200 text-amber-800 p-2.5 rounded-xl text-sm font-bold flex items-center space-x-1 shrink-0 transition" title="Bacakan Soal">
+                        🔊 <span class="hidden sm:inline">Dengar</span>
+                    </button>
+                </div>
+                
+                <!-- Pilihan Jawaban -->
+                <div id="options-container" class="grid grid-cols-1 gap-3">
+                    <!-- Dynamic Options Inserted Here -->
+                </div>
+            </div>
+
+            <!-- Kotak Pembahasan & Koreksi Jawaban -->
+            <div id="explanation-box" class="hidden bg-blue-50 border border-blue-200 p-4 rounded-2xl mb-6">
+                <div id="correction-banner" class="hidden font-extrabold text-sm mb-1 text-rose-600"></div>
+                <h4 class="font-bold text-blue-900 text-sm mb-1">💡 Pembahasan:</h4>
+                <p id="explanation-text" class="text-xs sm:text-sm text-blue-800"></p>
+            </div>
+
+            <!-- Tombol Navigasi Soal -->
+            <div class="flex justify-between items-center pt-3 border-t border-slate-100">
+                <button id="btn-prev" onclick="prevQuestion()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-2.5 rounded-xl text-sm transition disabled:opacity-50" disabled>
+                    ⬅️ Sebelumnya
+                </button>
+                <button id="btn-next" onclick="nextQuestion()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition shadow-md">
+                    Selanjutnya ➡
+                </button>
+            </div>
+        </section>
+
+        <!-- 5. HALAMAN HASIL AKHIR & SERTIFIKAT -->
+        <section id="screen-result" class="hidden bg-white rounded-3xl shadow-xl p-6 sm:p-10 text-center border border-emerald-100">
+            <div class="inline-block bg-amber-100 text-amber-700 p-4 rounded-full text-4xl mb-4 animate-bounce-short">
+                🏆
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800 mb-2">Kuis Selesai, <span id="result-name"></span>!</h2>
+            <p class="text-slate-500 mb-6">Berikut adalah rekapitulasi hasil permainan kuis Bahasa Indonesia kamu:</p>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-lg mx-auto mb-8">
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                    <p class="text-xs text-slate-400 font-bold mb-1">SKOR AKHIR</p>
+                    <p id="res-score" class="text-2xl font-extrabold text-emerald-600">0</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                    <p class="text-xs text-slate-400 font-bold mb-1">BENAR</p>
+                    <p id="res-correct" class="text-2xl font-extrabold text-blue-600">0</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                    <p class="text-xs text-slate-400 font-bold mb-1">SALAH</p>
+                    <p id="res-wrong" class="text-2xl font-extrabold text-rose-600">0</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                    <p class="text-xs text-slate-400 font-bold mb-1">PERSENTASE</p>
+                    <p id="res-percent" class="text-2xl font-extrabold text-amber-600">0%</p>
+                </div>
+            </div>
+
+            <div id="certificate-container" class="hidden mb-8">
+                <div class="bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 border-4 border-amber-300 p-6 sm:p-8 rounded-3xl shadow-inner max-w-xl mx-auto text-center relative overflow-hidden">
+                    <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl">📜</div>
+                    <h3 class="text-xs font-extrabold tracking-widest text-amber-800 uppercase mb-1">Sertifikat Kelulusan Digital</h3>
+                    <h4 class="text-xl sm:text-2xl font-black text-slate-800 mb-2">Penghargaan Prestasi Belajar</h4>
+                    <p class="text-xs text-slate-600 mb-4">Sertifikat ini diberikan dengan bangga kepada:</p>
+                    <p id="cert-name" class="text-xl sm:text-2xl font-extrabold text-emerald-700 underline decoration-amber-400 decoration-2 mb-4"></p>
+                    <p class="text-xs sm:text-sm text-slate-700 leading-relaxed mb-6">
+                        Atas keberhasilan menyelesaikan seluruh 50 soal uji kompetensi mata pelajaran <strong>Bahasa Indonesia Kelas 5 SD</strong> dengan hasil yang memuaskan.
+                    </p>
+                    <div class="flex justify-between items-end text-xs text-slate-500 pt-4 border-t border-amber-200">
+                        <div>
+                            <p class="font-bold text-slate-700">Tanggal:</p>
+                            <p id="cert-date"></p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-slate-700">Diterbitkan Resmi Oleh:</p>
+                            <p class="text-emerald-700 font-extrabold">Giga Inovation</p>
+                            <p class="text-[10px] text-slate-500">Kontak: 081329200985</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center gap-3">
+                <button onclick="restartQuiz()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-6 rounded-xl shadow-md transition">
+                    🔄 Mainkan Ulang Kuis
+                </button>
+                <button onclick="showMenu()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 px-6 rounded-xl transition">
+                    🏠 Kembali ke Menu Utama
+                </button>
+            </div>
+        </section>
+
+        <!-- 6. HALAMAN / DASHBOARD MODE GURU -->
+        <section id="screen-teacher" class="hidden bg-white rounded-3xl shadow-xl p-6 sm:p-8 border border-indigo-100">
+            <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
+                <div class="flex items-center space-x-2">
+                    <span class="text-2xl">👩‍🏫</span>
+                    <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800">Dashboard Real-Time Guru</h2>
+                </div>
+                <button onclick="showMenuFromTeacher()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-4 py-2 rounded-xl text-sm transition">
+                    ⬅️ Keluar Dashboard
+                </button>
+            </div>
+
+            <p class="text-xs sm:text-sm text-slate-500 mb-6">
+                Memantau progres aktivitas dan skor siswa secara langsung dari database secara <em>real-time</em>.
+            </p>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-indigo-50 text-indigo-900 text-xs sm:text-sm uppercase font-bold">
+                            <th class="p-3 rounded-l-xl">Nama Siswa</th>
+                            <th class="p-3">Soal Terjawab</th>
+                            <th class="p-3">Skor</th>
+                            <th class="p-3">Benar / Salah</th>
+                            <th class="p-3">Status</th>
+                            <th class="p-3 rounded-r-xl">Terakhir Aktif</th>
+                        </tr>
+                    </thead>
+                    <tbody id="teacher-students-table" class="text-xs sm:text-sm text-slate-700 divide-y divide-slate-100">
+                        <tr>
+                            <td colspan="6" class="p-4 text-center text-slate-400">Menunggu data siswa masuk secara real-time...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL PIN / PASSWORD GURU -->
+    <div id="modal-teacher-pin" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 max-w-sm w-full border border-indigo-100 text-center">
+            <div class="inline-block bg-indigo-100 text-indigo-700 p-3 rounded-full text-3xl mb-3">
+                🔐
+            </div>
+            <h3 class="text-lg font-bold text-slate-800 mb-1">Akses Mode Guru</h3>
+            <p class="text-xs text-slate-500 mb-4">Masukkan PIN Guru (Default: <strong>1234</strong>) untuk membuka dashboard pemantauan.</p>
+            
+            <input type="password" id="teacher-pin-input" placeholder="Masukkan PIN" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-center font-bold tracking-widest text-lg mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            
+            <div class="flex space-x-2">
+                <button onclick="closeTeacherLoginModal()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2.5 rounded-xl text-sm transition">
+                    Batal
+                </button>
+                <button onclick="verifyTeacherPin()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl text-sm transition shadow-md">
+                    Masuk
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center py-4 text-xs text-slate-400">
+        <p>Game Edukasi Bahasa Indonesia Kelas 5 SD • Didukung oleh Giga Inovation (081329200985)</p>
+    </footer>
+
+    <script type="module">
+        // Bank Soal 50 Pilihan Ganda Bahasa Indonesia Kelas 5 SD (Materi Bab 1, 2, & 3) ditambah properti poin
+        const rawQuizData = [
+            // --- Bab 1: Aku yang Unik (Soal 1 - 18) ---
+            {
+                question: "Teks yang melukiskan atau menggambarkan suatu objek, tempat, atau suasana tertentu dengan menggunakan pancaindra disebut teks...",
+                options: ["A. Narasi", "B. Deskripsi", "C. Eksposisi", "D. Persuasi"],
+                answer: 1,
+                points: 2,
+                explanation: "Teks deskripsi bertujuan menggambarkan objek secara jelas sehingga pembaca seolah-olah melihat, mendengar, atau merasakan sendiri."
+            },
+            {
+                question: "Perhatikan kalimat berikut: 'Wajahnya bulat telur dengan senyuman manis yang selalu menghiasi bibirnya.' Kalimat tersebut termasuk bagian dari teks...",
+                options: ["A. Prosedur", "B. Deskripsi fisik", "C. Laporan hasil observasi", "D. Petunjuk pembuatan"],
+                answer: 1,
+                points: 2,
+                explanation: "Deskripsi fisik menggambarkan ciri-ciri tubuh, wajah, atau penampilan fisik seseorang."
+            },
+            {
+                question: "Sinonim dari kata 'unik' adalah...",
+                options: ["A. Biasa", "B. Khas atau tersendiri", "C. Sama persis", "D. Umum"],
+                answer: 1,
+                points: 2,
+                explanation: "Kata 'unik' memiliki arti tersendiri, khas, atau tidak ada yang sama persis dengan yang lain."
+            },
+            {
+                question: "Antonim dari kata 'ramah' adalah...",
+                options: ["A. Baik", "B. Sombong", "C. Pemarah atau tidak ramah", "D. Lembut"],
+                answer: 2,
+                points: 2,
+                explanation: "Antonim adalah lawan kata. Lawan kata dari 'ramah' adalah 'pemarah' atau 'tidak ramah'."
+            },
+            {
+                question: "Cerita rekaan atau nyata yang disusun berdasarkan urutan waktu (kronologis) dinamakan teks...",
+                options: ["A. Narasi", "B. Deskripsi", "C. Argumentasi", "D. Persuasi"],
+                answer: 0,
+                points: 2,
+                explanation: "Teks narasi adalah cerita atau kisah yang disusun berdasarkan kronologi waktu dan memiliki alur cerita."
+            },
+            {
+                question: "Unsur utama yang wajib ada dalam sebuah teks narasi adalah...",
+                options: ["A. Tabel data angka", "B. Tokoh dan peristiwa", "C. Langkah-langkah kerja", "D. Daftar pustaka"],
+                answer: 1,
+                points: 2,
+                explanation: "Teks narasi selalu berpusat pada tokoh yang mengalami suatu peristiwa atau kejadian."
+            },
+            {
+                question: "Ketika menceritakan diri sendiri secara tertulis, sudut pandang yang paling sering digunakan adalah...",
+                options: ["A. Orang pertama (aku/saya)", "B. Orang kedua (kamu)", "C. Orang ketiga (dia/mereka)", "D. Orang keempat"],
+                answer: 0,
+                points: 2,
+                explanation: "Menceritakan diri sendiri menggunakan sudut pandang orang pertama dengan kata ganti 'aku' atau 'saya'."
+            },
+            {
+                question: "Ungkapan 'kutu buku' memiliki arti...",
+                options: ["A. Kutu yang hidup di buku", "B. Orang yang suka merusak buku", "C. Orang yang sangat suka membaca", "D. Penjual buku"],
+                answer: 2,
+                points: 2,
+                explanation: "Ungkapan 'kutu buku' adalah kiasan untuk orang yang sangat gemar membaca buku."
+            },
+            {
+                question: "Kalimat yang menggunakan kata sifat untuk mendeskripsikan sifat seseorang adalah...",
+                options: ["A. Budi berlari di lapangan.", "B. Rian adalah anak yang jujur dan suka menolong.", "C. Ibu memasak nasi di dapur.", "D. Ayah membaca koran pagi."],
+                answer: 1,
+                points: 2,
+                explanation: "Kata 'jujur' dan 'suka menolong' merupakan kata sifat yang menggambarkan watak atau sifat seseorang."
+            },
+            {
+                question: "Panca indra yang digunakan untuk mendeskripsikan suara musik yang merdu adalah...",
+                options: ["A. Penglihatan (mata)", "B. Pendengaran (telinga)", "C. Peraba (kulit)", "D. Penciuman (hidung)"],
+                answer: 1,
+                points: 2,
+                explanation: "Suara musik dirasakan melalui indra pendengaran yaitu telinga."
+            },
+            {
+                question: "Dalam mendeskripsikan ruangan kamar tidur, kita bisa menggunakan indra penglihatan untuk melihat...",
+                options: ["A. Wangi parfum ruangan", "B. Suara kipas angin", "C. Warna cat dinding dan kerapian tempat tidur", "D. Kelembutan selimut"],
+                answer: 2,
+                points: 2,
+                explanation: "Warna cat dan kerapian adalah objek yang diamati menggunakan indra penglihatan."
+            },
+            {
+                question: "Manakah kalimat berikut yang merupakan bagian dari teks deskripsi tempat?",
+                options: ["A. Kemarin sore aku pergi ke toko buku.", "B. Pantai Kuta memiliki pasir putih yang lembut dan air laut yang jernih.", "C. Bagaimana cara membuat kue bolu?", "D. Tolong ambilkan buku itu!"],
+                answer: 1,
+                points: 2,
+                explanation: "Kalimat tersebut menggambarkan keadaan fisik Pantai Kuta secara mendetail."
+            },
+            {
+                question: "Sifat seseorang yang tidak mudah menyerah dalam menghadapi kesulitan disebut...",
+                options: ["A. Pemalas", "B. Gigih atau pantang menyerah", "C. Penakut", "D. Cengeng"],
+                answer: 1,
+                points: 2,
+                explanation: "Ketekunan dan sifat pantang menyerah adalah ciri kepribadian yang positif."
+            },
+            {
+                question: "Penggunaan huruf kapital yang tepat terdapat pada kalimat...",
+                options: ["A. dita anak yang ramah.", "B. Dita Anak yang ramah.", "C. Dita adalah anak yang ramah.", "D. Dita adalah Anak Yang Ramah."],
+                answer: 2,
+                points: 2,
+                explanation: "Huruf kapital digunakan pada awal kalimat dan huruf pertama nama orang ('Dita')."
+            },
+            {
+                question: "Tujuan utama penulis membuat teks deskripsi adalah...",
+                options: ["A. Membujuk pembaca membeli barang", "B. Membuat pembaca seolah-olah melihat dan merasakan objek yang digambarkan", "C. Memberikan langkah kerja", "D. Menyajikan laporan penelitian"],
+                answer: 1,
+                points: 2,
+                explanation: "Tujuan teks deskripsi adalah menciptakan pengalaman sensorik bagi pembaca melalui rincian objek."
+            },
+            {
+                question: "Kata dasar dari kata 'pendeskripsian' adalah...",
+                options: ["A. Deskripsi", "B. Deskrips", "C. Skripsi", "D. Resep"],
+                answer: 0,
+                points: 2,
+                explanation: "Kata dasar pembentuk 'pendeskripsian' adalah 'deskripsi'."
+            },
+            {
+                question: "Saat memperkenalkan diri di depan kelas, sikap tubuh yang baik adalah...",
+                options: ["A. Menunduk terus", "B. Berdiri tegak dengan senyum ramah", "C. Membelakangi teman-teman", "D. Duduk di lantai"],
+                answer: 1,
+                points: 2,
+                explanation: "Berdiri tegak dan tersenyum menunjukkan rasa percaya diri saat berkenalan."
+            },
+            {
+                question: "Berikut ini yang bukan merupakan ciri fisik manusia adalah...",
+                options: ["A. Warna rambut", "B. Bentuk mata", "C. Sifat jujur dan disiplin", "D. Tinggi badan"],
+                answer: 2,
+                points: 2,
+                explanation: "Sifat jujur dan disiplin termasuk sifat atau watak, bukan ciri fisik."
+            },
+
+            // --- Bab 2: Buku Jendela Dunia (Soal 19 - 34) ---
+            {
+                question: "Buku yang berisi kisah atau cerita rekaan berdasarkan imajinasi pengarang disebut buku...",
+                options: ["A. Nonfiksi", "B. Fiksi", "C. Ensiklopedia", "D. Kamus"],
+                answer: 1,
+                points: 2,
+                explanation: "Buku fiksi adalah karya sastra yang bersumber dari imajinasi dan kreativitas penulis."
+            },
+            {
+                question: "Manakah di bawah ini yang termasuk contoh buku nonfiksi?",
+                options: ["A. Kumpulan dongeng hewan", "B. Novel petualangan anak", "C. Buku pelajaran Matematika Kelas 5", "D. Cerita pendek misteri"],
+                answer: 2,
+                points: 2,
+                explanation: "Buku pelajaran berisi ilmu pengetahuan nyata sehingga dikategorikan sebagai buku nonfiksi."
+            },
+            {
+                question: "Pesan moral atau nasihat yang ingin disampaikan pengarang melalui cerita disebut...",
+                options: ["A. Tema", "B. Amanat", "C. Latar", "D. Alur"],
+                answer: 1,
+                points: 2,
+                explanation: "Amanat adalah pesan moral yang dapat dipetik pembaca dari sebuah cerita."
+            },
+            {
+                question: "Unsur cerita yang menunjukkan tempat, waktu, dan suasana terjadinya peristiwa dinamakan...",
+                options: ["A. Alur", "B. Tokoh", "C. Latar", "D. Sudut pandang"],
+                answer: 2,
+                points: 2,
+                explanation: "Latar atau setting meliputi tempat, waktu, dan suasana kejadian dalam cerita."
+            },
+            {
+                question: "Kalimat yang menirukan secara langsung ucapan seseorang tanpa mengubah kata-katanya disebut kalimat...",
+                options: ["A. Langsung", "B. Tidak langsung", "C. Perintah", "D. Tanya"],
+                answer: 0,
+                points: 2,
+                explanation: "Kalimat langsung ditandai dengan tanda petik ganda dan mengutip asli ucapan penutur."
+            },
+            {
+                question: "Ubah kalimat langsung berikut menjadi kalimat tidak langsung: Ibu berkata, 'Jangan lupa mencuci tangan sebelum makan.'",
+                options: ["A. Ibu menyuruhku jangan lupa mencuci tangan.", "B. Ibu berpesan agar aku tidak lupa mencuci tangan sebelum makan.", "C. Jangan lupa ibu bilang cuci tangan.", "D. Ibu mau makan bersama."],
+                answer: 1,
+                points: 2,
+                explanation: "Kalimat tidak langsung mengubah bentuk kutipan menjadi kalimat berita tanpa tanda petik."
+            },
+            {
+                question: "Majas yang membandingkan suatu benda dengan sifat manusia sehingga benda tersebut seolah-olah bernyawa disebut majas...",
+                options: ["A. Metafora", "B. Personifikasi", "C. Hiperbola", "D. Litotes"],
+                answer: 1,
+                points: 2,
+                explanation: "Personifikasi memberikan sifat-sifat insani kepada benda mati (contoh: angin berbisik)."
+            },
+            {
+                question: "Contoh kalimat yang menggunakan majas metafora adalah...",
+                options: ["A. Angin malam memeluk tubuhku.", "B. Buku adalah jendela dunia yang membukan wawasan kita.", "C. Suaranya memecah angkasa.", "D. Daun kelapa menari-nari di tepi pantai."],
+                answer: 1,
+                points: 2,
+                explanation: "Metafora membandingkan dua hal secara langsung tanpa kata pembanding (buku = jendela dunia)."
+            },
+            {
+                question: "Majas hiperbola ditandai dengan penggunaan kata-kata yang...",
+                options: ["A. Melebih-lebihkan kenyataan", "B. Merendahkan diri", "C. Meniru suara hewan", "D. Mengulang huruf awal"],
+                answer: 0,
+                points: 2,
+                explanation: "Hiperbola melebih-lebihkan sesuatu hingga terkadang terasa tidak masuk akal (contoh: air matanya mengalir deras seperti sungai)."
+            },
+            {
+                question: "Bagian awal dari sebuah cerita fiksi biasanya berisi tentang...",
+                options: ["A. Penyelesaian masalah", "B. Pengenalan tokoh dan latar", "C. Puncak konflik", "D. Kesimpulan cerita"],
+                answer: 1,
+                points: 2,
+                explanation: "Awal cerita atau orientasi berfungsi mengenalkan tokoh, latar, dan situasi awal."
+            },
+            {
+                question: "Tokoh yang memiliki sifat jahat atau menentang tokoh utama dalam cerita disebut tokoh...",
+                options: ["A. Protagonis", "B. Antagonis", "C. Tritagonis", "D. Figuran"],
+                answer: 1,
+                points: 2,
+                explanation: "Tokoh antagonis adalah pemeran yang menjadi penentang atau lawan dari tokoh utama (protagonis)."
+            },
+            {
+                question: "Manakah di bawah ini yang merupakan ciri dari kalimat langsung?",
+                options: ["A. Menggunakan kata 'bahwa'", "B. Diapit oleh tanda petik ganda (\"...\")", "C. Berbentuk kalimat berita biasa", "D. Tidak ada pembicara yang dikutip"],
+                answer: 1,
+                points: 2,
+                explanation: "Kalimat langsung wajib diapit tanda petik ganda untuk menunjukkan dialog asli."
+            },
+            {
+                question: "Judul buku yang paling tepat untuk kategori buku nonfiksi adalah...",
+                options: ["A. Petualangan Si Kancil di Negeri Ajaib", "B. Ensiklopedia Tubuh Manusia", "C. Misteri Istana Berhantu", "D. Negeri di Atas Awan"],
+                answer: 1,
+                points: 2,
+                explanation: "Ensiklopedia adalah buku referensi nonfiksi berisi ilmu pengetahuan."
+            },
+            {
+                question: "Ungkapan 'panjang tangan' memiliki arti...",
+                options: ["A. Suka menolong", "B. Suka mencuri", "C. Bekerja keras", "D. Sombong"],
+                answer: 1,
+                points: 2,
+                explanation: "Panjang tangan adalah ungkapan bahasa Indonesia untuk orang yang gemar mencuri."
+            },
+            {
+                question: "Rangkaian peristiwa dari awal hingga akhir cerita disebut...",
+                options: ["A. Alur cerita (plot)", "B. Tema cerita", "C. Amanat cerita", "D. Tokoh cerita"],
+                answer: 0,
+                points: 2,
+                explanation: "Alur atau plot adalah jalan cerita yang mengatur rangkaian peristiwa kronologis."
+            },
+            {
+                question: "Kalimat manakah yang menggunakan majas personifikasi?",
+                options: ["A. Raja siang telah kembali ke peraduannya (matahari terbenam).", "B. Hatinya hancur berkeping-keping.", "C. Pena itu menari-nari di atas selembar kertas putih.", "D. Pintar sekali anak ini."],
+                answer: 2,
+                points: 2,
+                explanation: "Pena digambarkan seolah-olah dapat menari seperti manusia."
+            },
+
+            // --- Bab 3: Ekspresi Diri Melalui Hobi (Soal 35 - 50) ---
+            {
+                question: "Kegemaran atau aktivitas menyenangkan yang dilakukan di waktu luang disebut...",
+                options: ["A. Kewajiban", "B. Hobi", "C. Pekerjaan paksa", "D. Tugas sekolah"],
+                answer: 1,
+                points: 2,
+                explanation: "Hobi adalah kegiatan rekreasi atau kegemaran yang dilakukan untuk kesenangan pribadi."
+            },
+            {
+                question: "Siti sangat suka merawat tanaman hias di pekarangan rumah. Hobi Siti adalah...",
+                options: ["A. Membaca", "B. Berkebun", "C. Melukis", "D. Berenang"],
+                answer: 1,
+                points: 2,
+                explanation: "Merawat tanaman di pekarangan merupakan kegiatan berkebun."
+            },
+            {
+                question: "Kosakata khusus yang berkaitan dengan hobi melukis adalah...",
+                options: ["A. Raket, shuttlecock, net", "B. Kanvas, palet, cat air, kuas", "C. Pancing, umpan, joran", "D. Oven, tepung, mentega"],
+                answer: 1,
+                points: 2,
+                explanation: "Kanvas, palet, cat, dan kuas adalah alat-alat yang digunakan dalam melukis."
+            },
+            {
+                question: "Mengekspresikan hobi secara lisan dapat dilakukan melalui kegiatan...",
+                options: ["A. Menulis buku harian", "B. Bercerita atau presentasi di depan kelas", "C. Mengisi lembar ujian", "D. Membaca dalam hati"],
+                answer: 1,
+                points: 2,
+                explanation: "Ekspresi lisan disampaikan melalui berbicara langsung seperti presentasi atau bercerita."
+            },
+            {
+                question: "Manfaat memiliki hobi yang positif bagi anak-anak adalah...",
+                options: ["A. Membuat malas belajar", "B. Mengembangkan bakat, kreativitas, dan mengisi waktu luang secara bermanfaat", "C. Menghabiskan uang orang tua", "D. Membuat badan cepat lelah"],
+                answer: 1,
+                points: 2,
+                explanation: "Hobi positif membantu mengasah keterampilan, kreativitas, serta mengelola stres dengan baik."
+            },
+            {
+                question: "Udin hobi bermain sepak bola. Tempat biasa Udin menyalurkan hobinya adalah di...",
+                options: ["A. Laboratorium komputer", "B. Lapangan sepak bola", "C. Perpustakaan sekolah", "D. Kolam renang"],
+                answer: 1,
+                points: 2,
+                explanation: "Sepak bola dimainkan di lapangan rumput yang luas."
+            },
+            {
+                question: "Kalimat pujian yang tepat untuk teman yang gemar menggambar dan menghasilkan lukisan indah adalah...",
+                options: ["A. Lukisanmu jelek sekali!", "B. Wah, lukisanmu sangat indah dan penuh warna!", "C. Kenapa kamu suka menggambar?", "D. Gambar ini sangat membosankan."],
+                answer: 1,
+                points: 2,
+                explanation: "Kalimat pujian diberikan dengan apresiasi positif terhadap karya orang lain."
+            },
+            {
+                question: "Istilah 'fotografi' berkaitan erat dengan hobi...",
+                options: ["A. Memotret atau mengambil foto menggunakan kamera", "B. Memasak kue", "C. Merakit robot", "D. Bermain musik"],
+                answer: 0,
+                points: 2,
+                explanation: "Fotografi adalah seni dan hobi mengambil serta menghasilkan gambar melalui kamera."
+            },
+            {
+                question: "Menuliskan pengalaman saat melakukan hobi ke dalam bentuk cerita pendek termasuk cara mengekspresikan diri secara...",
+                options: ["A. Lisan", "B. Tulisan", "C. Isyarat", "D. Gerak tubuh"],
+                answer: 1,
+                points: 2,
+                explanation: "Menulis cerita pendek menggunakan media tulisan (ekspresi tulis)."
+            },
+            {
+                question: "Beni gemar membaca buku sains. Kosakata yang sering ditemukan Beni berkaitan dengan hobinya adalah...",
+                options: ["A. Gol, gawang, wasit", "B. Eksperimen, mikroskop, planet, gravitasi", "C. Kanvas, sketsa, cat minyak", "D. Melodi, nada, tempo"],
+                answer: 1,
+                points: 2,
+                explanation: "Sains atau ilmu pengetahuan lekat dengan istilah eksperimen, mikroskop, planet, dan gravitasi."
+            },
+            {
+                question: "Sikap kita ketika melihat teman memiliki hobi yang berbeda adalah...",
+                options: ["A. Mengejek hobinya", "B. Menghargai dan menghormati perbedaan tersebut", "C. Memaksa dia mengikuti hobi kita", "D. Menjauhinya"],
+                answer: 1,
+                points: 2,
+                explanation: "Keberagaman hobi harus disikapi dengan rasa saling menghargai dan toleransi."
+            },
+            {
+                question: "Perhatikan kalimat: 'Lani menari dengan gemulai di atas panggung.' Kalimat tersebut mengungkapkan hobi dalam bidang...",
+                options: ["A. Olahraga", "B. Seni tari", "C. Musik", "D. Memasak"],
+                answer: 1,
+                points: 2,
+                explanation: "Menari adalah bentuk hobi dan seni pertunjukan."
+            },
+            {
+                question: "Alat musik gitar dimainkan dengan cara...",
+                options: ["A. Ditiup", "B. Dipetik senarnya", "C. Dipukul", "D. Digesek"],
+                answer: 1,
+                points: 2,
+                explanation: "Gitar adalah alat musik petik."
+            },
+            {
+                question: "Bagaimana cara menumbuhkan rasa percaya diri saat menceritakan hobi di depan teman-teman?",
+                options: ["A. Berbicara dengan suara pelan dan menunduk", "B. Berlatih terlebih dahulu, tersenyum, dan berbicara dengan suara jelas", "C. Marah-marah kepada penonton", "D. Membaca sambil berlari"],
+                answer: 1,
+                points: 2,
+                explanation: "Latihan dan persiapan matang serta suara yang jelas menunjang rasa percaya diri."
+            },
+            {
+                question: "Kegiatan merakit model pesawat atau robot menggunakan balok lego melatih keterampilan...",
+                options: ["A. Motorik kasar dan tidur", "B. Kreativitas, ketelitian, dan logika berpikir", "C. Berbicara cepat", "D. Menyanyi lagu daerah"],
+                answer: 1,
+                points: 2,
+                explanation: "Merakit melatih ketelitian tangan dan kecerdasan spasial anak."
+            },
+            {
+                question: "Manakah ungkapan semangat yang cocok untuk teman yang sedang menekuni hobinya?",
+                options: ["A. 'Jangan pernah menyerah dan teruslah berkarya!'", "B. 'Sudahlah, berhenti saja!'", "C. 'Hobi itu tidak ada gunanya.'", "D. 'Kamu pasti gagal.'"],
+                answer: 0,
+                points: 2,
+                explanation: "Dukungan positif memotivasi teman untuk terus mengembangkan bakat dan hobinya."
+            }
+        ];
+
+        let quizData = [];
+        let currentUser = "";
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let shuffledOptionsMapping = [];
+        let score = 0;
+        let lives = 3; // Nyawa awal pemain
+
+        // Elemen DOM Tambahan
+        const quizLives = document.getElementById('quiz-lives');
+        const questionPointsBadge = document.getElementById('question-points-badge');
+
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Konfigurasi & Inisialisasi Firebase aman
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'edugame-bahasa-indo-k5';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyDummyKeyForLocalTestingPurposesOnly12345",
+            authDomain: "edu-game-local.firebaseapp.com",
+            projectId: "edu-game-local",
+            storageBucket: "edu-game-local.appspot.com",
+            messagingSenderId: "1234567890",
+            appId: "1:1234567890:web:abcdef"
+        };
+
+        let app, db, auth, userId = "";
+        let unsubscribeStudents = null;
+
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+
+            const initAuth = async () => {
+                try {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                    userId = auth.currentUser?.uid || crypto.randomUUID();
+                } catch (e) {
+                    userId = crypto.randomUUID();
+                }
+            };
+            initAuth();
+        } catch (e) {
+            console.warn("Firebase offline mode / mock initialized.");
+            userId = crypto.randomUUID();
+        }
+
+        // Elemen DOM
+        const screenLogin = document.getElementById('screen-login');
+        const screenMenu = document.getElementById('screen-menu');
+        const screenMaterial = document.getElementById('screen-material');
+        const screenQuiz = document.getElementById('screen-quiz');
+        const screenResult = document.getElementById('screen-result');
+        const screenTeacher = document.getElementById('screen-teacher');
+        const modalTeacherPin = document.getElementById('modal-teacher-pin');
+        
+        const usernameInput = document.getElementById('username-input');
+        const displayUsername = document.getElementById('display-username');
+        const userBadge = document.getElementById('user-badge');
+        const welcomeName = document.getElementById('welcome-name');
+        
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const explanationBox = document.getElementById('explanation-box');
+        const correctionBanner = document.getElementById('correction-banner');
+        const explanationText = document.getElementById('explanation-text');
+        const quizProgress = document.getElementById('quiz-progress');
+        const quizScoreLive = document.getElementById('quiz-score-live');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+        const teacherPinInput = document.getElementById('teacher-pin-input');
+        const teacherStudentsTable = document.getElementById('teacher-students-table');
+
+        // Web Audio API Sound Effects Generator
+        function playSound(type) {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'correct') {
+                    // Suara benar (nada naik ceria)
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, now); // A4
+                    osc.frequency.exponentialRampToValueAtTime(880, now + 0.15); // A5
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'wrong') {
+                    // Suara salah (nada rendah turun)
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.exponentialRampToValueAtTime(110, now + 0.2);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'click') {
+                    // Suara klik pendek
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, now);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                }
+            } catch (e) {
+                console.warn("AudioContext error:", e);
+            }
+        }
+
+        // Global functions exposed to window
+        window.handleLogin = function() {
+            playSound('click');
+            const name = usernameInput.value.trim();
+            if (!name) {
+                showToast("Mohon masukkan nama lengkap kamu terlebih dahulu!");
+                return;
+            }
+            currentUser = name;
+            displayUsername.textContent = currentUser;
+            welcomeName.textContent = currentUser;
+            userBadge.classList.remove('hidden');
+            
+            syncStudentProgressToFirestore({
+                name: currentUser,
+                score: 0,
+                answeredCount: 0,
+                correctCount: 0,
+                wrongCount: 0,
+                status: 'Sedang Di Menu Utama',
+                lastActive: new Date().toLocaleTimeString('id-ID')
+            });
+
+            showMenu();
+        };
+
+        window.logoutToLogin = function() {
+            playSound('click');
+            currentUser = "";
+            usernameInput.value = "";
+            userBadge.classList.add('hidden');
+            hideAllScreens();
+            screenLogin.classList.remove('hidden');
+        };
+
+        window.showToast = function(message) {
+            const div = document.createElement('div');
+            div.className = 'fixed top-5 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-2xl shadow-xl z-50 text-sm font-bold transition-all duration-300';
+            div.textContent = message;
+            document.body.appendChild(div);
+            setTimeout(() => {
+                div.style.opacity = '0';
+                setTimeout(() => div.remove(), 300);
+            }, 2500);
+        };
+
+        function hideAllScreens() {
+            screenLogin.classList.add('hidden');
+            screenMenu.classList.add('hidden');
+            screenMaterial.classList.add('hidden');
+            screenQuiz.classList.add('hidden');
+            screenResult.classList.add('hidden');
+            screenTeacher.classList.add('hidden');
+        }
+
+        window.showMenu = function() {
+            playSound('click');
+            hideAllScreens();
+            screenMenu.classList.remove('hidden');
+            if (currentUser) {
+                syncStudentProgressToFirestore({ status: 'Di Menu Utama' });
+            }
+        };
+
+        window.showMaterial = function() {
+            playSound('click');
+            hideAllScreens();
+            screenMaterial.classList.remove('hidden');
+            if (currentUser) {
+                syncStudentProgressToFirestore({ status: 'Membaca Ringkasan Materi' });
+            }
+        };
+
+        window.startQuiz = function() {
+            playSound('click');
+            hideAllScreens();
+            screenQuiz.classList.remove('hidden');
+            currentQuestionIndex = 0;
+            score = 0;
+            lives = 3; // Reset nyawa
+            
+            quizData = JSON.parse(JSON.stringify(rawQuizData));
+            userAnswers = new Array(quizData.length).fill(null);
+            shuffledOptionsMapping = [];
+
+            quizData.forEach((q) => {
+                let optionsWithIndex = q.options.map((optText, origIdx) => ({
+                    text: optText.substring(3).trim(),
+                    origIdx: origIdx
+                }));
+
+                for (let i = optionsWithIndex.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [optionsWithIndex[i], optionsWithIndex[j]] = [optionsWithIndex[j], optionsWithIndex[i]];
+                }
+
+                const labels = ['A', 'B', 'C', 'D'];
+                let newOptions = [];
+                let newCorrectIndex = 0;
+
+                optionsWithIndex.forEach((item, newIdx) => {
+                    newOptions.push(`${labels[newIdx]}. ${item.text}`);
+                    if (item.origIdx === q.answer) {
+                        newCorrectIndex = newIdx;
+                    }
+                });
+
+                shuffledOptionsMapping.push({
+                    shuffledOptions: newOptions,
+                    newCorrect: newCorrectIndex,
+                    originalMapping: optionsWithIndex
+                });
+            });
+
+            loadQuestion();
+            if (currentUser) {
+                syncStudentProgressToFirestore({ status: 'Mengerjakan Kuis' });
+            }
+        };
+
+        window.loadQuestion = function() {
+            const q = quizData[currentQuestionIndex];
+            const mapping = shuffledOptionsMapping[currentQuestionIndex];
+
+            quizProgress.textContent = `Soal ${currentQuestionIndex + 1} dari ${quizData.length}`;
+            questionText.textContent = `${currentQuestionIndex + 1}. ${q.question}`;
+            
+            calculateLiveScore();
+            quizScoreLive.textContent = `Poin: ${score}`;
+            
+            // Tampilkan jumlah nyawa berbentuk hati
+            let hearts = "❤️".repeat(Math.max(0, lives));
+            if (lives <= 0) hearts = "💔 (Habis)";
+            quizLives.textContent = `${hearts} Nyawa: ${lives}`;
+            questionPointsBadge.textContent = `⭐ Bobot Soal Ini: ${q.points || 2} Poin`;
+
+            optionsContainer.innerHTML = '';
+            mapping.shuffledOptions.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-4 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 font-medium text-slate-700 transition flex items-center justify-between';
+                
+                const spanText = document.createElement('span');
+                spanText.textContent = opt;
+                btn.appendChild(spanText);
+
+                const answered = userAnswers[currentQuestionIndex];
+                if (answered !== null || lives <= 0) {
+                    btn.disabled = true;
+                    if (idx === mapping.newCorrect) {
+                        btn.classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-900', 'font-bold');
+                    } else if (idx === answered && answered !== mapping.newCorrect) {
+                        btn.classList.add('bg-rose-100', 'border-rose-500', 'text-rose-900');
+                    }
+                } else {
+                    btn.onclick = () => selectAnswer(idx);
+                }
+
+                optionsContainer.appendChild(btn);
+            });
+
+            if (userAnswers[currentQuestionIndex] !== null || lives <= 0) {
+                explanationBox.classList.remove('hidden');
+                const answered = userAnswers[currentQuestionIndex];
+                if (answered === null && lives <= 0) {
+                    correctionBanner.className = "font-extrabold text-sm mb-1 text-rose-600";
+                    correctionBanner.textContent = "❌ Nyawa Kamu Habis! Game Over.";
+                } else {
+                    const isCorrect = answered === mapping.newCorrect;
+                    if (isCorrect) {
+                        correctionBanner.className = "font-extrabold text-sm mb-1 text-emerald-600";
+                        correctionBanner.textContent = `✔ Jawaban Kamu Benar! (+${q.points || 2} Poin)`;
+                    } else {
+                        correctionBanner.className = "font-extrabold text-sm mb-1 text-rose-600";
+                        const correctOptText = mapping.shuffledOptions[mapping.newCorrect];
+                        correctionBanner.textContent = `❌ Jawaban Kamu Kurang Tepat. Jawaban yang benar adalah: ${correctOptText}`;
+                    }
+                }
+                explanationText.textContent = q.explanation;
+            } else {
+                explanationBox.classList.add('hidden');
+            }
+
+            btnPrev.disabled = currentQuestionIndex === 0;
+            if (currentQuestionIndex === quizData.length - 1 || lives <= 0) {
+                btnNext.textContent = lives <= 0 ? "🏁 Lihat Hasil Akhir" : "🏆 Lihat Hasil Akhir";
+            } else {
+                btnNext.textContent = "Selanjutnya ➡️";
+            }
+        };
+
+        window.selectAnswer = function(selectedIndex) {
+            if (lives <= 0) return;
+            const mapping = shuffledOptionsMapping[currentQuestionIndex];
+            userAnswers[currentQuestionIndex] = selectedIndex;
+
+            const isCorrect = selectedIndex === mapping.newCorrect;
+            if (isCorrect) {
+                playSound('correct');
+            } else {
+                playSound('wrong');
+                lives--; // Kurangi nyawa jika salah
+            }
+
+            calculateLiveScore();
+            loadQuestion();
+
+            let answeredCount = 0;
+            let correctCount = 0;
+            let wrongCount = 0;
+            userAnswers.forEach((ans, idx) => {
+                if (ans !== null) {
+                    answeredCount++;
+                    if (ans === shuffledOptionsMapping[idx].newCorrect) correctCount++;
+                    else wrongCount++;
+                }
+            });
+
+            if (currentUser) {
+                syncStudentProgressToFirestore({
+                    score: score,
+                    answeredCount: answeredCount,
+                    correctCount: correctCount,
+                    wrongCount: wrongCount,
+                    status: lives <= 0 ? `Game Over (Nyawa Habis)` : `Mengerjakan Soal ${currentQuestionIndex + 1}/50`
+                });
+            }
+
+            // Jika nyawa habis, otomatis arahkan ke halaman hasil setelah jeda singkat
+            if (lives <= 0) {
+                setTimeout(() => {
+                    showResultScreen();
+                }, 2000);
+            }
+        };
+
+        window.prevQuestion = function() {
+            playSound('click');
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion();
+            }
+        };
+
+        window.nextQuestion = function() {
+            playSound('click');
+            if (currentQuestionIndex < quizData.length - 1 && lives > 0) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                showResultScreen();
+            }
+        };
+
+        function calculateLiveScore() {
+            score = 0;
+            userAnswers.forEach((ans, idx) => {
+                if (ans === shuffledOptionsMapping[idx].newCorrect) {
+                    score += (quizData[idx].points || 2);
+                }
+            });
+        }
+
+        function showResultScreen() {
+            hideAllScreens();
+            screenResult.classList.remove('hidden');
+
+            document.getElementById('result-name').textContent = currentUser;
+            
+            let correctCount = 0;
+            let wrongCount = 0;
+            userAnswers.forEach((ans, idx) => {
+                if (ans === shuffledOptionsMapping[idx].newCorrect) {
+                    correctCount++;
+                } else {
+                    wrongCount++;
+                }
+            });
+
+            const finalScore = correctCount * 2;
+            const percentage = Math.round((correctCount / quizData.length) * 100);
+
+            document.getElementById('res-score').textContent = finalScore;
+            document.getElementById('res-correct').textContent = correctCount;
+            document.getElementById('res-wrong').textContent = wrongCount;
+            document.getElementById('res-percent').textContent = percentage + "%";
+
+            const certContainer = document.getElementById('certificate-container');
+            let passStatus = "Selesai (Belum Lulus)";
+            if (percentage >= 60) {
+                passStatus = "Lulus 🏆";
+                certContainer.classList.remove('hidden');
+                document.getElementById('cert-name').textContent = currentUser;
+                
+                const today = new Date();
+                const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                document.getElementById('cert-date').textContent = today.toLocaleDateString('id-ID', options);
+            } else {
+                certContainer.classList.add('hidden');
+            }
+
+            if (currentUser) {
+                syncStudentProgressToFirestore({
+                    score: finalScore,
+                    answeredCount: quizData.length,
+                    correctCount: correctCount,
+                    wrongCount: wrongCount,
+                    status: `Selesai (${passStatus} - ${percentage}%)`
+                });
+            }
+        }
+
+        window.restartQuiz = function() {
+            startQuiz();
+        };
+
+        // Text-to-Speech & Sound Effects
+        window.readQuestion = function() {
+            playSound('click');
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const q = quizData[currentQuestionIndex];
+                const mapping = shuffledOptionsMapping[currentQuestionIndex];
+                const textToSpeak = `Soal nomor ${currentQuestionIndex + 1}. ${q.question}. Pilihan A: ${mapping.shuffledOptions[0]}. Pilihan B: ${mapping.shuffledOptions[1]}. Pilihan C: ${mapping.shuffledOptions[2]}. Pilihan D: ${mapping.shuffledOptions[3]}`;
+                
+                const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                utterance.lang = 'id-ID';
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+            } else {
+                showToast("Maaf, browser kamu tidak mendukung fitur suara pembaca soal.");
+            }
+        };
+
+        // --- FIRESTORE SYNC & TEACHER DASHBOARD ---
+        async function syncStudentProgressToFirestore(dataUpdates) {
+            if (!db || !userId || !currentUser) return;
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'students_progress', userId);
+                await setDoc(docRef, {
+                    uid: userId,
+                    name: currentUser,
+                    score: dataUpdates.score !== undefined ? dataUpdates.score : 0,
+                    answeredCount: dataUpdates.answeredCount !== undefined ? dataUpdates.answeredCount : 0,
+                    correctCount: dataUpdates.correctCount !== undefined ? dataUpdates.correctCount : 0,
+                    wrongCount: dataUpdates.wrongCount !== undefined ? dataUpdates.wrongCount : 0,
+                    status: dataUpdates.status || 'Aktif',
+                    lastActive: new Date().toLocaleTimeString('id-ID'),
+                    updatedAt: Date.now()
+                }, { merge: true });
+            } catch (e) {
+                console.error("Firestore sync error:", e);
+            }
+        }
+
+        window.openTeacherLoginModal = function() {
+            playSound('click');
+            teacherPinInput.value = "";
+            modalTeacherPin.classList.remove('hidden');
+        };
+
+        window.closeTeacherLoginModal = function() {
+            playSound('click');
+            modalTeacherPin.classList.add('hidden');
+        };
+
+        window.verifyTeacherPin = function() {
+            playSound('click');
+            const pin = teacherPinInput.value.trim();
+            if (pin === "1234") {
+                closeTeacherLoginModal();
+                openTeacherDashboard();
+            } else {
+                showToast("PIN Guru Salah! Silakan coba lagi (Default: 1234)");
+            }
+        };
+
+        function openTeacherDashboard() {
+            hideAllScreens();
+            screenTeacher.classList.remove('hidden');
+            startListeningToStudents();
+        }
+
+        window.showMenuFromTeacher = function() {
+            playSound('click');
+            if (unsubscribeStudents) {
+                unsubscribeStudents();
+                unsubscribeStudents = null;
+            }
+            if (currentUser) {
+                showMenu();
+            } else {
+                logoutToLogin();
+            }
+        };
+
+        function startListeningToStudents() {
+            if (!db) {
+                teacherStudentsTable.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-rose-500">Database Firestore tidak aktif (Mode Offline).</td></tr>`;
+                return;
+            }
+
+            if (unsubscribeStudents) unsubscribeStudents();
+
+            const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'students_progress');
+            
+            unsubscribeStudents = onSnapshot(colRef, (snapshot) => {
+                const students = [];
+                snapshot.forEach((docSnap) => {
+                    students.push(docSnap.data());
+                });
+
+                students.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+
+                if (students.length === 0) {
+                    teacherStudentsTable.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">Belum ada siswa yang masuk atau mengerjakan kuis.</td></tr>`;
+                    return;
+                }
+
+                let html = "";
+                students.forEach((s) => {
+                    let statusBadgeColor = "bg-amber-100 text-amber-800";
+                    if (s.status && s.status.includes('Selesai')) {
+                        statusBadgeColor = "bg-emerald-100 text-emerald-800 font-bold";
+                    } else if (s.status && s.status.includes('Mengerjakan')) {
+                        statusBadgeColor = "bg-blue-100 text-blue-800";
+                    }
+
+                    html += `
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="p-3 font-bold text-slate-800 flex items-center space-x-2">
+                                <span>🧑‍🎓</span> <span>${escapeHtml(s.name || 'Tanpa Nama')}</span>
+                            </td>
+                            <td class="p-3 font-semibold">${s.answeredCount || 0} / 50</td>
+                            <td class="p-3 font-extrabold text-indigo-600">${s.score || 0}</td>
+                            <td class="p-3">
+                                <span class="text-emerald-600 font-bold">✔ ${s.correctCount || 0}</span> / 
+                                <span class="text-rose-600 font-bold">✖ ${s.wrongCount || 0}</span>
+                            </td>
+                            <td class="p-3">
+                                <span class="px-2.5 py-1 rounded-full text-xs ${statusBadgeColor}">
+                                    ${escapeHtml(s.status || 'Aktif')}
+                                </span>
+                            </td>
+                            <td class="p-3 text-xs text-slate-400">${s.lastActive || '-'}</td>
+                        </tr>
+                    `;
+                });
+                teacherStudentsTable.html = html;
+                teacherStudentsTable.innerHTML = html;
+            }, (error) => {
+                console.error("Error listening to students:", error);
+                teacherStudentsTable.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-rose-500">Gagal memuat data real-time: ${error.message}</td></tr>`;
+            });
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+    </script>
+</body>
+</html>
+```
+eof
+
+### Pembaruan Utama yang Telah Dilakukan:
+1. **Pengacakan Kunci Jawaban (Option Shuffling):** Setiap kali kuis dimulai, pilihan jawaban (A, B, C, D) diacak secara otomatis menggunakan algoritma *Fisher-Yates* agar tata letak posisi jawaban benar tidak selalu di tempat yang sama.
+2. **Efek Suara (Sound Effects):** Menggunakan Web Audio API untuk menghasilkan efek suara interaktif saat siswa menekan tombol navigasi, menjawab benar (nada naik ceria), maupun menjawab salah (nada turun).
+3. **Koreksi & Pembahasan Jawaban Salah:** Jika siswa memilih jawaban yang salah, aplikasi langsung menampilkan banner merah yang menunjukkan bahwa jawaban kurang tepat beserta **pemberitahuan kunci jawaban yang benar** di samping pembahasan materi.
