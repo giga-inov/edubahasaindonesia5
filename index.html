@@ -309,9 +309,9 @@
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Konfigurasi & Inisialisasi Firebase
+        // Konfigurasi & Inisialisasi Firebase Anda (Ganti dengan kredensial asli Anda)
         const firebaseConfig = {
-            apiKey: "AIzaSy... (Ganti dengan API Key Asli dari Firebase Console)",
+            apiKey: "AIzaSy...",
             authDomain: "edubahasaindonesia5.firebaseapp.com",
             projectId: "edubahasaindonesia5",
             storageBucket: "edubahasaindonesia5.appspot.com",
@@ -326,10 +326,16 @@
             app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
+            
+            // Inisialisasi ID lokal instan agar sinkronisasi langsung berjalan lancar
+            userId = 'student_' + Math.random().toString(36).substring(2, 15);
+            
             signInAnonymously(auth).then((res) => {
                 userId = res.user.uid;
                 console.log("Firebase Auth Sukses:", userId);
-            }).catch(err => console.warn("Auth Error:", err));
+            }).catch(err => {
+                console.warn("Auth Anonim dibatasi, menggunakan Local ID:", userId);
+            });
         } catch (e) {
             console.warn("Firebase belum dikonfigurasi penuh (Mode Offline):", e);
         }
@@ -394,7 +400,7 @@
         let userAnswers = [];
         let shuffledOptionsMapping = [];
         let score = 0;
-        let lives = 3; // Nyawa awal pemain
+        let lives = 3;
 
         // Web Audio API untuk Sound Effects Interaktif
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -497,14 +503,12 @@
 
         window.startQuiz = function() {
             playSound('click');
-            // Acak urutan 50 soal dari bank soal
             quizData = shuffleArray(fullQuizBank);
             currentQuestionIndex = 0;
             userAnswers = new Array(quizData.length).fill(null);
             score = 0;
             lives = 3;
 
-            // Inisialisasi mapping pengacakan opsi untuk setiap soal
             shuffledOptionsMapping = quizData.map(q => {
                 let indexedOpts = q.options.map((optText, idx) => ({ text: optText, originalIndex: idx }));
                 let shuffled = shuffleArray(indexedOpts);
@@ -529,11 +533,10 @@
             container.innerHTML = '';
 
             mapping.forEach((item, displayIdx) => {
-                const optLetter = String.fromCharCode(65 + displayIdx); // A, B, C, D
+                const optLetter = String.fromCharCode(65 + displayIdx);
                 const btn = document.createElement('button');
                 btn.className = "w-full text-left p-4 rounded-2xl border-2 border-slate-200 hover:border-emerald-400 hover:bg-emerald-50/50 font-medium text-slate-700 transition flex items-center space-x-3";
                 
-                // Cek apakah soal ini sudah pernah dijawab sebelumnya
                 const existingAns = userAnswers[currentQuestionIndex];
                 if (existingAns !== null && existingAns !== undefined) {
                     btn.disabled = true;
@@ -556,7 +559,6 @@
                 container.appendChild(btn);
             });
 
-            // Tampilkan pembahasan jika sudah dijawab
             const expBox = document.getElementById('explanation-box');
             const expText = document.getElementById('explanation-text');
             const corrBanner = document.getElementById('correction-banner');
@@ -582,7 +584,7 @@
         }
 
         function selectAnswer(displayIdx) {
-            if (userAnswers[currentQuestionIndex] !== null && userAnswers[currentQuestionIndex] !== undefined) return; // Sudah dijawab
+            if (userAnswers[currentQuestionIndex] !== null && userAnswers[currentQuestionIndex] !== undefined) return;
 
             userAnswers[currentQuestionIndex] = displayIdx;
             const q = quizData[currentQuestionIndex];
@@ -606,7 +608,6 @@
             loadQuestion();
             syncDataToFirebase();
 
-            // Cek jika nyawa habis
             if (lives <= 0) {
                 setTimeout(() => {
                     alert("Nyawa kamu habis! Permainan berakhir lebih awal.");
@@ -687,7 +688,6 @@
             document.getElementById('res-wrong').textContent = wrongCount;
             document.getElementById('res-percent').textContent = `${percent}%`;
 
-            // Tampilkan sertifikat jika persentase >= 60%
             const certContainer = document.getElementById('certificate-container');
             if (percent >= 60) {
                 certContainer.classList.remove('hidden');
@@ -779,7 +779,7 @@
         function listenRealtimeStudents() {
             if (!db) {
                 const tableBody = document.getElementById('teacher-students-table');
-                tableBody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-rose-500 font-bold">Database Firestore tidak aktif (Mode Offline). Harap konfigurasi firebaseConfig terlebih dahulu.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-rose-500 font-bold">Database Firestore tidak aktif.</td></tr>`;
                 return;
             }
 
